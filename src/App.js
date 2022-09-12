@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function App() {
   const [location, setLocation] = useState(null)
+  const [searchInput, setSearchInput] = useState(null)
   const [weather, setWeather] = useState(JSON.parse(localStorage.getItem("weatherCache"))?.expires >= Date.now() ? JSON.parse(localStorage.getItem("weatherCache")) : null)
   const [bgColor, setBgColor] = useState({
     top: { hue: 0, sat: 0, lig: 0 }, 
@@ -28,12 +31,27 @@ export default function App() {
   },[location])
 
   useEffect(()=>{
+    if(!searchInput) return
+    let searchArg = searchInput.charAt(0).toUpperCase() + searchInput.slice(1)
+    //console.log(searchArg)
+    const getWeather = async () => {
+      const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${searchArg}&cnt=1&appid=${process.env.REACT_APP_WEATHER_APK}`)
+      const resjson = await res.json()
+      resjson.cod === "200" ? setWeather(resjson) : toast(resjson.message)
+      setSearchInput(null)
+    }
+    getWeather()
+  },[searchInput])
+
+  useEffect(()=>{
+    //console.log(location)
     if(!location || weather) return
     const getWeather = async () => {
       const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${location.coords.latitude}&lon=${location.coords.longitude}&cnt=1&appid=${process.env.REACT_APP_WEATHER_APK}`)
       const resjson = await res.json()
+      //console.log(resjson)
       setWeather(resjson)
-      const weatherCache = {...resjson, expires: Date.now() + 3600 * 1000}
+      const weatherCache = {...resjson, expires: Date.now() + 1200 * 1000}
       localStorage.setItem("weatherCache", JSON.stringify(weatherCache))
     }
     getWeather()
@@ -45,8 +63,7 @@ export default function App() {
       bgColorCopy = {top: { sat: 100, lig: 50 }, middle: { sat: 44, lig: 25 }, bottom: { sat: 0, lig: 0 }} :
       bgColorCopy = {top: { sat: 50, lig: 30 }, middle: { sat: 25, lig: 10 }, bottom: { sat: 0, lig: 0 }}
 
-    console.log(weather?.list[0].weather[0].main)
-
+    //console.log(weather)
     switch (weather?.list[0].weather[0].main) {
       case "Thunderstorm":
         bgColorCopy = {
@@ -115,10 +132,23 @@ export default function App() {
   return (
     <div className="App">
       <div className="back" style={style}>
+        <ToastContainer
+          autoClose={2000}
+          theme={"dark"}
+          hideProgressBar={true}
+        />
         <div className="row">
+        <div className="search-root">
+          <input 
+            className="search-input" 
+            onKeyDown={(e)=>{if(e.key === "Enter"){setSearchInput(e.target.value)}}}
+            placeholder="Input a city name and hit enter"
+          ></input>
+        </div>
           <img src={`https://openweathermap.org/img/wn/${weather?.list[0].weather[0].icon}@4x.png`} alt="weather icon"></img>
           <div className="col">
-            <h1>{`${Math.round(weather?.list[0].main.temp-273.15)}°C`}</h1>
+            <h1>{weather?.city?.name}</h1>
+            <h2>{`${Math.round(weather?.list[0].main.temp-273.15)}°C`}</h2>
             <h2>{`Feels like ${Math.round(weather?.list[0].main.feels_like-273.15)}°C`}</h2>
             <h2>{weather?.list[0].weather[0].description}</h2>
             <h2>{`humidity: ${weather?.list[0].main.humidity}%`}</h2>

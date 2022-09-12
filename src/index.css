@@ -40,8 +40,31 @@ h1{
   font-family: Tahoma;
 }
 h2{
+  padding: 0;
   font-weight: normal;
-  margin: 2px;
+  margin: 5px;
   font-family: Tahoma;
   color: inherit;
 }
+
+.search-root{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: fixed;
+  width: 300px;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -250%);
+  background: rgba(11, 11, 11, 0.1);
+  padding: 22px;
+  border-radius: 25px;
+}
+.search-input{
+  width: 100%;
+  background: none;
+  border:none;
+  font:inherit;
+  color: inherit;
+}
+input:focus { outline: none; }
