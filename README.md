@@ -4,5 +4,4 @@
 - Changing background gradient depending on weather
 
 todo:
-- search function for locations
 - save favourite locations
