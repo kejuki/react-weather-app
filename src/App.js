@@ -18,6 +18,23 @@ export default function App() {
       hsl(${bgColor?.top.hue},${bgColor?.top.sat}%,${bgColor?.top.lig}%) 100%)`}
   )
 
+  //t = top, m = middle, b = bottom
+  //h = hue, s = saturation, l = lighting
+  const createGradient = (th=0, mh=0, bh=0,
+                          ts=0, ms=0, bs=0, 
+                          tl=0, ml=0, bl=0) => {
+    let bgColorCopy
+    weather?.city.sunrise > 0 ?
+      bgColorCopy = {top: {hue: 0, sat: 100, lig: 50 }, middle: {hue: 0,  sat: 44, lig: 25 }, bottom: {hue: 0,  sat: 0, lig: 0 }} :
+      bgColorCopy = {top: {hue: 0,  sat: 50, lig: 30 }, middle: {hue: 0,  sat: 25, lig: 10 }, bottom: {hue: 0,  sat: 0, lig: 0 }}
+
+    bgColorCopy = {
+      top:    {...bgColorCopy.top   , hue: bgColorCopy.top.hue + th   , sat: bgColorCopy.top.sat + ts   , lig: bgColorCopy.top.lig + tl }, 
+      middle: {...bgColorCopy.middle, hue: bgColorCopy.middle.hue + mh, sat: bgColorCopy.middle.sat + ms, lig: bgColorCopy.middle.lig + ml }, 
+      bottom: {...bgColorCopy.bottom, hue: bgColorCopy.bottom.hue + bh, sat: bgColorCopy.bottom.sat + bs, lig: bgColorCopy.bottom.lig + bl }}
+    return bgColorCopy
+  }
+
   useEffect(()=>{
     if(location) return
     navigator.geolocation.getCurrentPosition(
@@ -58,37 +75,19 @@ export default function App() {
   },[location, weather])
 
   useEffect(()=>{
-    let bgColorCopy
-    weather?.city.sunrise > 0 ?
-      bgColorCopy = {top: { sat: 100, lig: 50 }, middle: { sat: 44, lig: 25 }, bottom: { sat: 0, lig: 0 }} :
-      bgColorCopy = {top: { sat: 50, lig: 30 }, middle: { sat: 25, lig: 10 }, bottom: { sat: 0, lig: 0 }}
-
-    //console.log(weather)
     switch (weather?.list[0].weather[0].main) {
       case "Thunderstorm":
-        bgColorCopy = {
-          top: {...bgColorCopy.top, hue: 255 }, 
-          middle: {...bgColorCopy.middle, hue: 245 }, 
-          bottom: {...bgColorCopy.bottom, hue: 222 }}
+        setBgColor(createGradient(255,245,222))
         break;
       case "Drizzle":
       case "Clouds":
-        bgColorCopy = {
-          top: {...bgColorCopy.top, hue: 200, lig: bgColorCopy.top.lig + 50 }, 
-          middle: {...bgColorCopy.middle, hue: 200, sat: bgColorCopy.middle.sat - 22 }, 
-          bottom: {...bgColorCopy.bottom, hue: 200 }}
+        setBgColor(createGradient(200,200,200,0,-22,0,50))
         break;
       case "Rain":
-        bgColorCopy = {
-          top: {...bgColorCopy.top, hue: 220, sat: bgColorCopy.middle.sat - 10 }, 
-          middle: {...bgColorCopy.middle, hue: 215, sat: bgColorCopy.middle.sat + 10 }, 
-          bottom: {...bgColorCopy.bottom, hue: 200 }}
+        setBgColor(createGradient(220,215,200,-10,10))
         break;
       case "Snow":
-        bgColorCopy = {
-          top: {...bgColorCopy.top, hue: 200, lig: bgColorCopy.top.lig + 50 }, 
-          middle: {...bgColorCopy.middle, hue: 200, sat: bgColorCopy.middle.sat -50, lig: bgColorCopy.middle.lig + 50 }, 
-          bottom: {...bgColorCopy.bottom, hue: 200 }}
+        setBgColor(createGradient(200,200,200,0,-50,0,50,50))
         break;
       case "Mist":
       case "Smoke":
@@ -97,28 +96,18 @@ export default function App() {
       case "Ash":
       case "Squall":
       case "Tornado":
-        bgColorCopy = {
-          top: {...bgColorCopy.top, hue: 200,sat: bgColorCopy.top.sat -100 }, 
-          middle: {...bgColorCopy.middle, hue: 200, sat: bgColorCopy.middle.sat -50, lig: bgColorCopy.middle.lig + 5 }, 
-          bottom: {...bgColorCopy.bottom, hue: 200 }}
+        setBgColor(createGradient(200,200,200,-100,-50,0,0,5))
         break;
       case "Dust":
       case "Sand":
-        bgColorCopy = {
-          top: {...bgColorCopy.top, hue: 42, sat: bgColorCopy.top.sat -70 }, 
-          middle: {...bgColorCopy.middle, hue: 42, sat: bgColorCopy.middle.sat -20 }, 
-          bottom: {...bgColorCopy.bottom, hue: 42 }}
+        setBgColor(createGradient(42,42,42,-70,-20))
         break;
       case "Clear":
-        bgColorCopy = {
-          top: {...bgColorCopy.top, hue: 200, sat: bgColorCopy.top.sat -20, lig: bgColorCopy.top.lig + 36}, 
-          middle: {...bgColorCopy.middle, hue: 200, sat: bgColorCopy.middle.sat -20, lig: bgColorCopy.middle.lig + 25 }, 
-          bottom: {...bgColorCopy.bottom, hue: 200 }}
+        setBgColor(createGradient(200,200,200,-20,-20,0,36,25))
         break;
       default:
         break;
     }
-    setBgColor(bgColorCopy)
   //eslint-disable-next-line react-hooks/exhaustive-deps
   },[weather])
 
