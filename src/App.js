@@ -6,33 +6,30 @@ export default function App() {
   const [location, setLocation] = useState(null)
   const [searchInput, setSearchInput] = useState(null)
   const [weather, setWeather] = useState(JSON.parse(localStorage.getItem("weatherCache"))?.expires >= Date.now() ? JSON.parse(localStorage.getItem("weatherCache")) : null)
-  const [bgColor, setBgColor] = useState({
-    top: { hue: 0, sat: 0, lig: 0 }, 
-    middle: { hue: 0, sat: 0, lig: 0 }, 
-    bottom: { hue: 0, sat: 0, lig: 0 }
-  })
-  const [style, setStyle] = useState(
-    {background: `linear-gradient(0deg, 
-      hsl(${bgColor?.bottom.hue},${bgColor?.bottom.sat}%,${bgColor?.bottom.lig}%) 0%, 
-      hsl(${bgColor?.middle.hue},${bgColor?.middle.sat}%,${bgColor?.middle.lig}%) 35%, 
-      hsl(${bgColor?.top.hue},${bgColor?.top.sat}%,${bgColor?.top.lig}%) 100%)`}
-  )
+  const [style, setStyle] = useState({background: "gray"})
 
   //t = top, m = middle, b = bottom
   //h = hue, s = saturation, l = lighting
   const createGradient = (th=0, mh=0, bh=0,
                           ts=0, ms=0, bs=0, 
                           tl=0, ml=0, bl=0) => {
-    let bgColorCopy
+    let backgrounGradient
+    let style
     weather?.city.sunrise > 0 ?
-      bgColorCopy = {top: {hue: 0, sat: 100, lig: 50 }, middle: {hue: 0,  sat: 44, lig: 25 }, bottom: {hue: 0,  sat: 0, lig: 0 }} :
-      bgColorCopy = {top: {hue: 0,  sat: 50, lig: 30 }, middle: {hue: 0,  sat: 25, lig: 10 }, bottom: {hue: 0,  sat: 0, lig: 0 }}
+      backgrounGradient = {top: {hue: 0, sat: 100, lig: 50 }, middle: {hue: 0,  sat: 44, lig: 25 }, bottom: {hue: 0,  sat: 0, lig: 0 }} :
+      backgrounGradient = {top: {hue: 0,  sat: 50, lig: 30 }, middle: {hue: 0,  sat: 25, lig: 10 }, bottom: {hue: 0,  sat: 0, lig: 0 }}
 
-    bgColorCopy = {
-      top:    {...bgColorCopy.top   , hue: bgColorCopy.top.hue + th   , sat: bgColorCopy.top.sat + ts   , lig: bgColorCopy.top.lig + tl }, 
-      middle: {...bgColorCopy.middle, hue: bgColorCopy.middle.hue + mh, sat: bgColorCopy.middle.sat + ms, lig: bgColorCopy.middle.lig + ml }, 
-      bottom: {...bgColorCopy.bottom, hue: bgColorCopy.bottom.hue + bh, sat: bgColorCopy.bottom.sat + bs, lig: bgColorCopy.bottom.lig + bl }}
-    return bgColorCopy
+    backgrounGradient = {
+      top:    {...backgrounGradient.top   , hue: backgrounGradient.top.hue + th   , sat: backgrounGradient.top.sat + ts   , lig: backgrounGradient.top.lig + tl }, 
+      middle: {...backgrounGradient.middle, hue: backgrounGradient.middle.hue + mh, sat: backgrounGradient.middle.sat + ms, lig: backgrounGradient.middle.lig + ml }, 
+      bottom: {...backgrounGradient.bottom, hue: backgrounGradient.bottom.hue + bh, sat: backgrounGradient.bottom.sat + bs, lig: backgrounGradient.bottom.lig + bl }}
+      
+    style = {background: `linear-gradient(0deg, 
+      hsl(${backgrounGradient?.bottom.hue},${backgrounGradient?.bottom.sat}%,${backgrounGradient?.bottom.lig}%) 0%, 
+      hsl(${backgrounGradient?.middle.hue},${backgrounGradient?.middle.sat}%,${backgrounGradient?.middle.lig}%) 35%, 
+      hsl(${backgrounGradient?.top.hue},${backgrounGradient?.top.sat}%,${backgrounGradient?.top.lig}%) 100%)`}
+    
+    return style
   }
 
   useEffect(()=>{
@@ -77,17 +74,17 @@ export default function App() {
   useEffect(()=>{
     switch (weather?.list[0].weather[0].main) {
       case "Thunderstorm":
-        setBgColor(createGradient(255,245,222))
+        setStyle(createGradient(255,245,222))
         break;
       case "Drizzle":
       case "Clouds":
-        setBgColor(createGradient(200,200,200,0,-22,0,50))
+        setStyle(createGradient(200,200,200,0,-22,0,50))
         break;
       case "Rain":
-        setBgColor(createGradient(220,215,200,-10,10))
+        setStyle(createGradient(220,215,200,-10,10))
         break;
       case "Snow":
-        setBgColor(createGradient(200,200,200,0,-50,0,50,50))
+        setStyle(createGradient(200,200,200,0,-50,0,50,50))
         break;
       case "Mist":
       case "Smoke":
@@ -96,27 +93,20 @@ export default function App() {
       case "Ash":
       case "Squall":
       case "Tornado":
-        setBgColor(createGradient(200,200,200,-100,-50,0,0,5))
+        setStyle(createGradient(200,200,200,-100,-50,0,0,5))
         break;
       case "Dust":
       case "Sand":
-        setBgColor(createGradient(42,42,42,-70,-20))
+        setStyle(createGradient(42,42,42,-70,-20))
         break;
       case "Clear":
-        setBgColor(createGradient(200,200,200,-20,-20,0,36,25))
+        setStyle(createGradient(200,200,200,-20,-20,0,36,25))
         break;
       default:
         break;
     }
   //eslint-disable-next-line react-hooks/exhaustive-deps
   },[weather])
-
-  useEffect(()=>{
-    setStyle({background: `linear-gradient(0deg, 
-      hsl(${bgColor?.bottom.hue},${bgColor?.bottom.sat}%,${bgColor?.bottom.lig}%) 0%, 
-      hsl(${bgColor?.middle.hue},${bgColor?.middle.sat}%,${bgColor?.middle.lig}%) 35%, 
-      hsl(${bgColor?.top.hue},${bgColor?.top.sat}%,${bgColor?.top.lig}%) 100%)`})
-  },[bgColor])
 
   return (
     <div className="App">
