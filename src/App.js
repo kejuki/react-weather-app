@@ -7,6 +7,21 @@ export default function App() {
   const [searchInput, setSearchInput] = useState(null)
   const [weather, setWeather] = useState(JSON.parse(localStorage.getItem("weatherCache"))?.expires >= Date.now() ? JSON.parse(localStorage.getItem("weatherCache")) : null)
   const [style, setStyle] = useState({background: "gray"})
+  const [recent, setRecent] = useState(JSON.parse(localStorage.getItem("recentLocations")))
+
+  if(localStorage.getItem("recentLocations") === null) {localStorage.setItem("recentLocations", JSON.stringify([]))} 
+  const updateRecent = (cityName) => {
+    let recentCopy = [...recent]
+    
+    if(!recentCopy.includes(cityName)){
+      recentCopy?.unshift(cityName)
+      recentCopy.length = 4
+      console.log(recentCopy)
+      localStorage.setItem("recentLocations", JSON.stringify(recentCopy))
+      return recentCopy
+    }
+    return recent
+  }
 
   //t = top, m = middle, b = bottom
   //h = hue, s = saturation, l = lighting
@@ -51,10 +66,15 @@ export default function App() {
     const getWeather = async () => {
       const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${searchArg}&cnt=1&appid=${process.env.REACT_APP_WEATHER_APK}`)
       const resjson = await res.json()
-      resjson.cod === "200" ? setWeather(resjson) : toast(resjson.message)
+      if(resjson.cod === "200"){
+        setWeather(resjson)
+        setRecent(updateRecent(searchArg))
+      } 
+      else {toast(resjson.message)}
       setSearchInput(null)
     }
     getWeather()
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   },[searchInput])
 
   useEffect(()=>{
@@ -131,6 +151,15 @@ export default function App() {
             <h2>{`Feels like ${Math.round(weather?.list[0].main.feels_like-273.15)}°C`}</h2>
             <h2>{weather?.list[0].weather[0].description}</h2>
             <h2>{`humidity: ${weather?.list[0].main.humidity}%`}</h2>
+          </div>
+        </div>
+        <div className="recent-container">
+          <h2>Recent locations</h2>
+          <div className="recent-btns">
+            <button className="recent-btn" onClick={()=>setSearchInput(recent[0])}>{recent[0]}</button>
+            <button className="recent-btn" onClick={()=>setSearchInput(recent[1])}>{recent[1]}</button>
+            <button className="recent-btn" onClick={()=>setSearchInput(recent[2])}>{recent[2]}</button>
+            <button className="recent-btn" onClick={()=>setSearchInput(recent[3])}>{recent[3]}</button>
           </div>
         </div>
       </div>
