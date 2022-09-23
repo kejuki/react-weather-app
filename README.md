@@ -2,6 +2,4 @@
 
 - Shows weather data of users current location/input location
 - Changing background gradient depending on weather
-
-todo:
-- save favourite locations
+- Recently searched locations are saved
