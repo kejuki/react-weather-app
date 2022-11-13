@@ -9,6 +9,7 @@ export default function App() {
   const [style, setStyle] = useState({background: "gray"})
   const [recent, setRecent] = useState(JSON.parse(localStorage.getItem("recentLocations")))
 
+  //gets recent locations from local storage
   if(localStorage.getItem("recentLocations") === null) {localStorage.setItem("recentLocations", JSON.stringify([]))} 
   const updateRecent = (cityName) => {
     let recentCopy = [...recent]
@@ -23,6 +24,7 @@ export default function App() {
     return recent
   }
 
+  //creates gradient for background
   //t = top, m = middle, b = bottom
   //h = hue, s = saturation, l = lighting
   const createGradient = (th=0, mh=0, bh=0,
@@ -47,6 +49,7 @@ export default function App() {
     return style
   }
 
+  //gets user location
   useEffect(()=>{
     if(location) return
     navigator.geolocation.getCurrentPosition(
@@ -59,6 +62,7 @@ export default function App() {
       })
   },[location])
 
+  //gets weather data using search input
   useEffect(()=>{
     if(!searchInput) return
     let searchArg = searchInput.charAt(0).toUpperCase() + searchInput.slice(1)
@@ -77,6 +81,7 @@ export default function App() {
     //eslint-disable-next-line react-hooks/exhaustive-deps
   },[searchInput])
 
+  //gets weather data using user location
   useEffect(()=>{
     //console.log(location)
     if(!location || weather) return
@@ -91,6 +96,7 @@ export default function App() {
     getWeather()
   },[location, weather])
 
+  //sets background style depending on the weather
   useEffect(()=>{
     switch (weather?.list[0].weather[0].main) {
       case "Thunderstorm":
